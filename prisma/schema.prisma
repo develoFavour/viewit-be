@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  name         String
+  businessName String
+  slug         String    @unique
+  logo         String?
+  description  String?
+  plan         Plan      @default(FREE)
+  isVerified   Boolean   @default(false)
+  verificationToken String?
+  onboardingStep OnboardingStep @default(ACCOUNT_CREATED)
+  products     Product[]
+  analytics    Analytics[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Buyer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  favorites Favorite[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  category    String
+  images      String[]
+  modelUrl    String?
+  isPublished Boolean   @default(false)
+  viewCount   Int       @default(0)
+  arViewCount Int       @default(0)
+  merchantId  String
+  merchant    Merchant  @relation(fields: [merchantId], references: [id])
+  hotspots    Hotspot[]
+  analytics   Analytics[]
+  favorites   Favorite[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Hotspot {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  x           Float
+  y           Float
+  z           Float
+  title       String
+  content     String
+  isAiGenerated Boolean @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Analytics {
+  id         String        @id @default(cuid())
+  type       AnalyticsType
+  productId  String
+  product     Product       @relation(fields: [productId], references: [id])
+  merchantId String
+  merchant   Merchant      @relation(fields: [merchantId], references: [id])
+  metadata   Json?
+  createdAt  DateTime      @default(now())
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  buyerId   String
+  buyer     Buyer    @relation(fields: [buyerId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum OnboardingStep {
+  ACCOUNT_CREATED
+  STORE_DETAILS_FINISHED
+  FIRST_PRODUCT_UPLOADED
+  COMPLETE
+}
+
+enum AnalyticsType {
+  VIEW
+  AR_VIEW
+  SHARE
+  HOTSPOT_CLICK
+  MODEL_ROTATE
+}

@@ -29,7 +29,7 @@
     "@getbrevo/brevo": "^5.0.4",
     "@prisma/client": "^6.4.0",
     "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.9.0",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
     "dotenv": "^17.4.2",
